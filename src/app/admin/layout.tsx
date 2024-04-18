@@ -1,5 +1,6 @@
 import Nav, { NavLink } from "@/components/Nav";
-import ThemeToggle from "@/components/ThemeToggle";
+
+export const dynamic = "force-dynamic";
 
 export default function AdminLayout({
   children,
