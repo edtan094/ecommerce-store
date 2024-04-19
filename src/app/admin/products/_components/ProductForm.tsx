@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/formatters";
 import { useState } from "react";
-import { addProduct } from "../../action/products";
+import { addProduct } from "../../_actions/products";
 
 export function ProductForm() {
   const [priceInCents, setPriceInCents] = useState<number>();
