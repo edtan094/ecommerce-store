@@ -4,12 +4,10 @@ import db from "@/db/db";
 import { z } from "zod";
 import fs from "fs/promises";
 import { redirect } from "next/navigation";
+import { File } from "buffer";
 
-// const fileSchema = z.instanceof(File, { message: "Required" });
-const fileSchema = z.object({
-  size: z.number().min(1).optional(), // Size is optional for image but required for file
-  type: z.string(),
-});
+const fileSchema = z.instanceof(File, { message: "Required" });
+
 const imageSchema = fileSchema.refine(
   (file) => file.size === 0 || file.type.startsWith("image/")
 );
