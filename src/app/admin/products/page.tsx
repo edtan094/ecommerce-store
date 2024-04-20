@@ -95,13 +95,18 @@ async function ProductTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem asChild>
-                      <a download href={`/admin/products/${product.id}`}>
+                      <a
+                        download
+                        href={`/admin/products/${product.id}/download`}
+                      >
                         Download
                       </a>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href={`/admin/products/${product.id}`}>Edit</Link>
+                      <Link href={`/admin/products/${product.id}/edit`}>
+                        Edit
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <ActiveToggleDropdownItem
