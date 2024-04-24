@@ -1,9 +1,10 @@
-import ProductCard from "@/components/ProductCard";
+import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import db from "@/db/db";
 import { Product } from "@prisma/client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 function getPopularProducts() {
   return db.product.findMany({
@@ -26,21 +27,21 @@ export default function HomePage() {
     <main className=" space-y-12">
       <ProductGridSection
         title="Most Popular"
-        productFetcher={getPopularProducts}
+        productsFetchers={getPopularProducts}
       />
-      <ProductGridSection title="Newest" productFetcher={getNewestProducts} />
+      <ProductGridSection title="Newest" productsFetchers={getNewestProducts} />
     </main>
   );
 }
 
 type ProductGridSectionProps = {
   title: string;
-  productFetcher: () => Promise<Product[]>;
+  productsFetchers: () => Promise<Product[]>;
 };
 
 async function ProductGridSection({
   title,
-  productFetcher,
+  productsFetchers,
 }: ProductGridSectionProps) {
   return (
     <div className=" space-y-4">
@@ -54,10 +55,28 @@ async function ProductGridSection({
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {(await productFetcher()).map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
+        <Suspense
+          fallback={
+            <>
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+            </>
+          }
+        >
+          <ProductSuspense productsFetchers={productsFetchers} />
+        </Suspense>
       </div>
     </div>
   );
+}
+
+async function ProductSuspense({
+  productsFetchers,
+}: {
+  productsFetchers: () => Promise<Product[]>;
+}) {
+  return (await productsFetchers()).map((product) => (
+    <ProductCard key={product.id} {...product} />
+  ));
 }
