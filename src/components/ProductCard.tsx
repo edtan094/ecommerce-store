@@ -40,7 +40,7 @@ export default function ProductCard({
       </CardContent>
       <CardFooter>
         <Button asChild size="lg" className="w-full">
-          <Link href={`/products/${id}`}>Purchase</Link>
+          <Link href={`/products/${id}/purchase`}>Purchase</Link>
         </Button>
       </CardFooter>
     </Card>
