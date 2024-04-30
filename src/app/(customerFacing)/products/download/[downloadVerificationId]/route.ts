@@ -11,7 +11,7 @@ export async function GET(
 ) {
   const data = await db.downloadVerification.findUnique({
     where: { id: downloadVerificationId, expiresAt: { gt: new Date() } },
-    select: { product: { select: { filePath: true, name: true } } },
+    select: { product: { select: { imagePath: true, name: true } } },
   });
 
   if (!data) {
@@ -20,9 +20,9 @@ export async function GET(
     );
   }
 
-  const { size } = await fs.stat(data.product.filePath);
-  const file = await fs.readFile(data.product.filePath);
-  const extension = path.extname(data.product.filePath);
+  const { size } = await fs.stat(data.product.imagePath);
+  const file = await fs.readFile(data.product.imagePath);
+  const extension = path.extname(data.product.imagePath);
 
   return new NextResponse(file, {
     headers: {
