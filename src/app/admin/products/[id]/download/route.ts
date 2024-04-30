@@ -10,14 +10,14 @@ export async function GET(
 ) {
   const product = await db.product.findUnique({
     where: { id },
-    select: { filePath: true, name: true },
+    select: { imagePath: true, name: true },
   });
 
   if (product == null) return notFound();
 
-  const { size } = await fs.stat(product.filePath);
-  const file = await fs.readFile(product.filePath);
-  const extension = path.extname(product.filePath);
+  const { size } = await fs.stat(product.imagePath);
+  const file = await fs.readFile(product.imagePath);
+  const extension = path.extname(product.imagePath);
 
   return new NextResponse(file, {
     headers: {
