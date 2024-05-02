@@ -1,4 +1,4 @@
-import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import db from "@/db/db";
 import { cache } from "@/lib/cache";
@@ -6,6 +6,7 @@ import { Product } from "@prisma/client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ProductSuspense } from "./_components/ProductSuspense";
 
 const getPopularProducts = cache(
   () => {
@@ -27,26 +28,26 @@ const getNewestProducts = cache(() => {
   });
 }, ["/", "getNewestProducts"]);
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <main className=" space-y-12">
       <ProductGridSection
         title="Most Popular"
-        productsFetchers={getPopularProducts}
+        products={await getPopularProducts()}
       />
-      <ProductGridSection title="Newest" productsFetchers={getNewestProducts} />
+      <ProductGridSection title="Newest" products={await getNewestProducts()} />
     </main>
   );
 }
 
 type ProductGridSectionProps = {
   title: string;
-  productsFetchers: () => Promise<Product[]>;
+  products: Product[];
 };
 
 async function ProductGridSection({
   title,
-  productsFetchers,
+  products,
 }: ProductGridSectionProps) {
   return (
     <div className=" space-y-4">
@@ -69,19 +70,9 @@ async function ProductGridSection({
             </>
           }
         >
-          <ProductSuspense productsFetchers={productsFetchers} />
+          <ProductSuspense products={products} />
         </Suspense>
       </div>
     </div>
   );
-}
-
-async function ProductSuspense({
-  productsFetchers,
-}: {
-  productsFetchers: () => Promise<Product[]>;
-}) {
-  return (await productsFetchers()).map((product) => (
-    <ProductCard key={product.id} {...product} />
-  ));
 }
