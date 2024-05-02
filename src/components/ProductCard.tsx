@@ -12,6 +12,8 @@ import {
 import { Button } from "./ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { set } from "zod";
 
 type ProductCardProps = {
   name: string;
@@ -28,6 +30,8 @@ export default function ProductCard({
   id,
   imagePath,
 }: ProductCardProps) {
+  const [isAdded, setIsAdded] = useState(false);
+
   function handleAddToCart(product: {
     name: string;
     priceInCents: number;
@@ -51,7 +55,36 @@ export default function ProductCard({
     } else {
       localStorage.setItem("ecommerce-cart", JSON.stringify([product]));
     }
+    setIsAdded(true);
   }
+
+  function handleRemoveFromCart(id: string) {
+    const cartItems = JSON.parse(
+      localStorage.getItem("ecommerce-cart") as string
+    );
+    const updatedCart = cartItems.filter(
+      (item: { id: string }) => item.id !== id
+    );
+    localStorage.setItem("ecommerce-cart", JSON.stringify(updatedCart));
+    setIsAdded(false);
+  }
+
+  useEffect(() => {
+    if (
+      localStorage.getItem("ecommerce-cart") &&
+      Array.isArray(
+        JSON.parse(localStorage.getItem("ecommerce-cart") as string)
+      )
+    ) {
+      const cartItems = JSON.parse(
+        localStorage.getItem("ecommerce-cart") as string
+      );
+      const item = cartItems.find((item: { id: string }) => item.id === id);
+      if (item) {
+        setIsAdded(true);
+      }
+    }
+  }, []);
 
   return (
     <Card className="flex overflow-hidden flex-col">
@@ -72,11 +105,22 @@ export default function ProductCard({
         <Button
           className="w-1/3"
           size="lg"
+          variant={isAdded ? "destructive" : "default"}
           onClick={() => {
-            handleAddToCart({ id, name, description, priceInCents, imagePath });
+            if (isAdded) {
+              handleRemoveFromCart(id);
+            } else {
+              handleAddToCart({
+                id,
+                name,
+                description,
+                priceInCents,
+                imagePath,
+              });
+            }
           }}
         >
-          Add to Cart
+          {isAdded ? "Remove" : "Add to Cart"}
         </Button>
       </CardFooter>
     </Card>
