@@ -25,7 +25,16 @@ type CartContextType = {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState<CartContextType[]>([]);
+  const cartExists =
+    sessionStorage.getItem("ecommerce-cart") &&
+    Array.isArray(
+      JSON.parse(sessionStorage.getItem("ecommerce-cart") as string)
+    );
+  const [cart, setCart] = useState<CartContextType[]>(
+    cartExists
+      ? JSON.parse(sessionStorage.getItem("ecommerce-cart") as string)
+      : []
+  );
 
   const addToCart = (product: CartContextType) => {
     setCart((prevState) => [...prevState, product]);
@@ -46,12 +55,7 @@ export const CartProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (
-      sessionStorage.getItem("ecommerce-cart") &&
-      Array.isArray(
-        JSON.parse(sessionStorage.getItem("ecommerce-cart") as string)
-      )
-    ) {
+    if (cartExists) {
       const cartItems = JSON.parse(
         sessionStorage.getItem("ecommerce-cart") as string
       );
