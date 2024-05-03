@@ -1,17 +1,19 @@
 "use client";
 
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 
 const CartContext = createContext<{
   cart: CartContextType[];
   addToCart: (product: CartContextType) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
+  isInCart: (productId: string) => boolean;
 }>({
   cart: [],
   addToCart: () => {},
   removeFromCart: () => {},
   clearCart: () => {},
+  isInCart: () => false,
 });
 
 type CartContextType = {
@@ -35,13 +37,35 @@ export const CartProvider = ({ children }) => {
     );
   };
 
+  const isInCart = (productId: string) => {
+    return cart.some((product) => product.id === productId);
+  };
+
   const clearCart = () => {
     setCart([]);
   };
 
+  useEffect(() => {
+    if (
+      sessionStorage.getItem("ecommerce-cart") &&
+      Array.isArray(
+        JSON.parse(sessionStorage.getItem("ecommerce-cart") as string)
+      )
+    ) {
+      const cartItems = JSON.parse(
+        sessionStorage.getItem("ecommerce-cart") as string
+      );
+      setCart(cartItems);
+    }
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem("ecommerce-cart", JSON.stringify(cart));
+  }, [cart]);
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, clearCart }}
+      value={{ cart, addToCart, removeFromCart, clearCart, isInCart }}
     >
       {children}
     </CartContext.Provider>

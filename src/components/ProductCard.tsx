@@ -14,6 +14,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { set } from "zod";
+import ShoppingButtons from "@/app/(customerFacing)/_components/ShoppingButtons";
 
 type ProductCardProps = {
   name: string;
@@ -30,62 +31,6 @@ export default function ProductCard({
   id,
   imagePath,
 }: ProductCardProps) {
-  const [isAdded, setIsAdded] = useState(false);
-
-  function handleAddToCart(product: {
-    name: string;
-    priceInCents: number;
-    description: string;
-    id: string;
-    imagePath: string;
-  }) {
-    if (
-      localStorage.getItem("ecommerce-cart") &&
-      Array.isArray(
-        JSON.parse(localStorage.getItem("ecommerce-cart") as string)
-      )
-    ) {
-      localStorage.setItem(
-        "ecommerce-cart",
-        JSON.stringify([
-          product,
-          ...JSON.parse(localStorage.getItem("ecommerce-cart") as string),
-        ])
-      );
-    } else {
-      localStorage.setItem("ecommerce-cart", JSON.stringify([product]));
-    }
-    setIsAdded(true);
-  }
-
-  function handleRemoveFromCart(id: string) {
-    const cartItems = JSON.parse(
-      localStorage.getItem("ecommerce-cart") as string
-    );
-    const updatedCart = cartItems.filter(
-      (item: { id: string }) => item.id !== id
-    );
-    localStorage.setItem("ecommerce-cart", JSON.stringify(updatedCart));
-    setIsAdded(false);
-  }
-
-  useEffect(() => {
-    if (
-      localStorage.getItem("ecommerce-cart") &&
-      Array.isArray(
-        JSON.parse(localStorage.getItem("ecommerce-cart") as string)
-      )
-    ) {
-      const cartItems = JSON.parse(
-        localStorage.getItem("ecommerce-cart") as string
-      );
-      const item = cartItems.find((item: { id: string }) => item.id === id);
-      if (item) {
-        setIsAdded(true);
-      }
-    }
-  }, []);
-
   return (
     <Card className="flex overflow-hidden flex-col">
       <div className=" relative w-full h-auto aspect-video">
@@ -99,29 +44,13 @@ export default function ProductCard({
         <p className=" line-clamp-4">{description}</p>
       </CardContent>
       <CardFooter className="flex justify-around">
-        <Button asChild size="lg" className="w-1/3">
-          <Link href={`/products/${id}/purchase`}>Purchase</Link>
-        </Button>
-        <Button
-          className="w-1/3"
-          size="lg"
-          variant={isAdded ? "destructive" : "default"}
-          onClick={() => {
-            if (isAdded) {
-              handleRemoveFromCart(id);
-            } else {
-              handleAddToCart({
-                id,
-                name,
-                description,
-                priceInCents,
-                imagePath,
-              });
-            }
-          }}
-        >
-          {isAdded ? "Remove" : "Add to Cart"}
-        </Button>
+        <ShoppingButtons
+          id={id}
+          description={description}
+          name={name}
+          imagePath={imagePath}
+          priceInCents={priceInCents}
+        />
       </CardFooter>
     </Card>
   );
