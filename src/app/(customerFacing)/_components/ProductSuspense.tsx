@@ -1,13 +1,14 @@
-"use client";
 import ProductCard from "@/components/ProductCard";
 import { Product } from "@prisma/client";
 
 type ProductSuspenseProps = {
-  products: Product[];
+  productsFetchers: () => Promise<Product[]>;
 };
 
-export function ProductSuspense({ products }: ProductSuspenseProps) {
-  return products.map((product) => (
+export async function ProductSuspense({
+  productsFetchers,
+}: ProductSuspenseProps) {
+  return (await productsFetchers()).map((product) => (
     <ProductCard key={product.id} {...product} />
   ));
 }

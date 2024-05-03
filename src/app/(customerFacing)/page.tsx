@@ -33,21 +33,24 @@ export default async function HomePage() {
     <main className=" space-y-12">
       <ProductGridSection
         title="Most Popular"
-        products={await getPopularProducts()}
+        productsFetchers={getNewestProducts}
       />
-      <ProductGridSection title="Newest" products={await getNewestProducts()} />
+      <ProductGridSection
+        title="Newest"
+        productsFetchers={getPopularProducts}
+      />
     </main>
   );
 }
 
 type ProductGridSectionProps = {
   title: string;
-  products: Product[];
+  productsFetchers: () => Promise<Product[]>;
 };
 
 async function ProductGridSection({
   title,
-  products,
+  productsFetchers,
 }: ProductGridSectionProps) {
   return (
     <div className=" space-y-4">
@@ -70,7 +73,7 @@ async function ProductGridSection({
             </>
           }
         >
-          <ProductSuspense products={products} />
+          <ProductSuspense productsFetchers={productsFetchers} />
         </Suspense>
       </div>
     </div>
