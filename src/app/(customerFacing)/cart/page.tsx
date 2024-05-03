@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { CartItem } from "./_components/CartItem";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
