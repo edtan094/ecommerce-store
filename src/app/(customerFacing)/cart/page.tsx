@@ -12,9 +12,48 @@ import {
 } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/formatters";
 import { useCart } from "@/cartContext/CartContext";
+import { useFormState, useFormStatus } from "react-dom";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { redirect } from "next/navigation";
 
 export default function MyCartPage() {
   const { addToCart, removeFromCart, cart, clearCart, isInCart } = useCart();
+  const [email, setEmail] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const handleCheckProducts = async () => {
+    const response = await fetch("/cart/findProducts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ productIds: cart.map((item) => item.id), email }),
+    });
+    const listOfItemsThatHaveBeenBoughtAlready: {
+      status: boolean;
+      id: string;
+    }[] = await response.json();
+    let error = false;
+    cart.forEach((item) => {
+      const product = listOfItemsThatHaveBeenBoughtAlready.find(
+        (product) => product.id === item.id
+      );
+      if (product?.status) {
+        setErrorMessage(
+          "You have already bought some items on this list, so we have clear these duplicate items from your cart! Please click checkout again to proceed."
+        );
+        error = true;
+        removeFromCart(item.id);
+      }
+    });
+    if (!error) {
+      redirect("/cart/checkout");
+    }
+
+    return listOfItemsThatHaveBeenBoughtAlready;
+  };
+  const [error, action] = useFormState(handleCheckProducts, {});
 
   return (
     <main>
@@ -46,27 +85,46 @@ export default function MyCartPage() {
           )}
         </div>
         <div className="w-1/3 my-9">
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg">Items in Cart: {cart.length}</p>
-              <p className="text-lg">
-                Total:{" "}
-                {formatCurrency(
-                  cart.reduce((acc, item) => acc + item.priceInCents, 0) / 100
+          <form action={action}>
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-lg">Items in Cart: {cart.length}</p>
+                <p className="text-lg">
+                  Total:{" "}
+                  {formatCurrency(
+                    cart.reduce((acc, item) => acc + item.priceInCents, 0) / 100
+                  )}
+                </p>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                {errorMessage && (
+                  <div className="text-destructive">{errorMessage}</div>
                 )}
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button>
-                <Link href="/checkout">Proceed to Checkout</Link>
-              </Button>
-            </CardFooter>
-          </Card>
+              </CardContent>
+              <CardFooter>
+                <SubmitButton />
+              </CardFooter>
+            </Card>
+          </form>
         </div>
       </div>
     </main>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit">{pending ? "Checking out..." : "Checkout"}</Button>
   );
 }
