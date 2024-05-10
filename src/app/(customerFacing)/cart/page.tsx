@@ -48,7 +48,8 @@ export default function MyCartPage() {
       }
     });
     if (!error) {
-      redirect("/cart/checkout");
+      const productIds = cart.map((item) => item.id).join(".");
+      redirect(`/cart/checkout/${productIds}`);
     }
 
     return listOfItemsThatHaveBeenBoughtAlready;

@@ -24,52 +24,35 @@ import Image from "next/image";
 import { FormEvent, useState } from "react";
 
 type CheckoutFormProps = {
-  product: Product[];
+  total: number;
   clientSecret: string;
 };
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY as string);
 
 export function MultiItemCheckOutForm({
-  product,
+  total,
   clientSecret,
 }: CheckoutFormProps) {
-  function totalPrice() {
-    let total = 0;
-    product.forEach((item) => {
-      total += item.priceInCents;
-    });
-    return total;
-  }
-
   return (
     <>
       <div className="max-w-5xl w-full mx-auto space-y-8">
         <div className=" flex gap-4 items-center">
           <div>
-            <div className=" text-lg ">
-              {formatCurrency(totalPrice() / 100)}
+            <div className="text-lg ">
+              Grand Total: {formatCurrency(total / 100)}
             </div>
           </div>
         </div>
         <Elements options={{ clientSecret }} stripe={stripePromise}>
-          <Form
-            priceInCents={totalPrice()}
-            productId={JSON.stringify(productIds)}
-          />
+          <Form priceInCents={total} />
         </Elements>
       </div>
     </>
   );
 }
 
-function Form({
-  priceInCents,
-  productId,
-}: {
-  priceInCents: number;
-  productId: string;
-}) {
+function Form({ priceInCents }: { priceInCents: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
@@ -81,17 +64,6 @@ function Form({
     if (!stripe || !elements || !email) return;
 
     setIsLoading(true);
-
-    const orderExist = await userOrderExists(email, productId);
-
-    if (orderExist) {
-      setErrorMessage(
-        "You have already purchased this product. Try downloading this from your Orders page"
-      );
-      setIsLoading(false);
-      return;
-    }
-
     stripe
       .confirmPayment({
         elements,
