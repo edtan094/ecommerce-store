@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import PurchaseReceiptEmail from "@/email/PurchaseReceipt";
+import PurchaseReceiptsEmail from "@/email/PurchaseReceipts";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 const resend = new Resend(process.env.RESEND_API_KEY as string);
@@ -107,7 +108,6 @@ export async function POST(req: NextRequest) {
 async function handleMultiItems(event: Stripe.Event) {
   if (event.type !== "charge.succeeded") throw new Error("Invalid event type");
   const charge = event.data.object;
-  console.log("charge.metadata.productId", charge.metadata.productId);
   const productIds = charge.metadata.productIds.split(".");
   const email = charge.billing_details.email;
   const pricePaidInCents = charge.amount;
@@ -137,8 +137,6 @@ async function handleMultiItems(event: Stripe.Event) {
     select: { orders: { orderBy: { createdAt: "desc" } } },
   });
 
-  console.log("orders", orders);
-
   const downloadVerifications = await Promise.all(
     products.map((product) =>
       db.downloadVerification.create({
@@ -146,25 +144,39 @@ async function handleMultiItems(event: Stripe.Event) {
           productId: product.id,
           expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
         },
+        select: { productId: true, id: true },
       })
     )
   );
-  console.log("downloadVerifications", downloadVerifications);
 
-  // const { data, error } = await resend.emails.send({
-  //   from: `Support <${process.env.SENDER_EMAIL}>`,
-  //   to: [email],
-  //   subject: "Order Confirmation",
-  //   react: (
-  //     <PurchaseReceiptEmail
-  //       orders={orders}
-  //       products={products}
-  //       downloadVerificationIds={downloadVerifications.map((dv) => dv.id)}
-  //     />
-  //   ),
-  // });
+  const purchasedOrders = products.map((product) => {
+    return {
+      name: product.name,
+      imagePath: product.imagePath,
+      description: product.description,
+      downloadVerification: downloadVerifications.find(
+        (dv) => dv.productId === product.id
+      ),
+    };
+  });
 
-  // if (error) {
-  //   return new NextResponse("Internal Server Error", { status: 500 });
-  // }
+  const { data, error } = await resend.emails.send({
+    from: `Support <${process.env.SENDER_EMAIL}>`,
+    to: [email],
+    subject: "Order Confirmation",
+    react: (
+      <PurchaseReceiptsEmail
+        products={purchasedOrders}
+        order={{
+          id: orders[0].id,
+          createdAt: orders[0].createdAt,
+          pricePaidInCents: pricePaidInCents,
+        }}
+      />
+    ),
+  });
+
+  if (error) {
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
 }
