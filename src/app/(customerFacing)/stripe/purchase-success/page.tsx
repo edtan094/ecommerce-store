@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Stripe from "stripe";
+import { Header } from "./_component/Header";
+import { revalidatePath } from "next/cache";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -45,6 +47,9 @@ export default async function SuccessPage({
   const products = await findProducts();
 
   if (!product && !products) return notFound();
+
+  revalidatePath("/");
+  revalidatePath("/products");
 
   const isSuccess = paymentIntent.status === "succeeded";
   if (product) {
@@ -126,9 +131,7 @@ async function MultipleOrderSuccessPage({
 }: MultipleOrderSuccessPageProps) {
   return (
     <div className="max-w-5xl w-full mx-auto space-y-8">
-      <h1 className="text-4xl font-bold">
-        {isSuccess ? "Success!" : "Error!"}
-      </h1>
+      <Header isSuccess={isSuccess} />
       {products.map(async (product) => {
         return (
           <div key={product.id} className=" flex gap-4 items-center">
