@@ -55,7 +55,7 @@ export default function MyCartPage() {
     return listOfItemsThatHaveBeenBoughtAlready;
   };
 
-  const [error, action] = useFormState(handleCheckProducts, {});
+  const [error, action] = useFormState(handleCheckProducts, []);
 
   return (
     <main>
