@@ -55,7 +55,6 @@ export default function MyCartPage() {
     return listOfItemsThatHaveBeenBoughtAlready;
   };
 
-  // eslint-disable-next-line
   const [error, action] = useFormState(handleCheckProducts, {});
 
   return (
