@@ -122,10 +122,12 @@ async function handleMultiItems(event: Stripe.Event) {
       description: product.description,
       downloadVerification: downloadVerifications.find(
         (dv) => dv.productId === product.id
-      ),
+      ) as {
+        id: string;
+        productId: string;
+      },
     };
   });
-
   const { data, error } = await resend.emails.send({
     from: `Support <${process.env.SENDER_EMAIL}>`,
     to: [email],
