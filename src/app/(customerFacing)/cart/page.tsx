@@ -61,8 +61,8 @@ export default function MyCartPage() {
       <div className="flex justify-center">
         <h1 className="text-4xl">My Cart</h1>
       </div>
-      <div className="flex">
-        <div className="w-2/3 px-4">
+      <div className="md:flex">
+        <div className="md:w-2/3 px-4">
           {cart.length > 0 ? (
             <div className="my-9">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
@@ -85,7 +85,7 @@ export default function MyCartPage() {
             <h2 className="text-2xl">Your Cart is Empty!</h2>
           )}
         </div>
-        <div className="w-1/3 my-9">
+        <div className="md:w-1/3 my-9">
           <form action={action}>
             <Card>
               <CardHeader>
