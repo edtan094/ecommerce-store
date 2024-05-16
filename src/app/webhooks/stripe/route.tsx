@@ -71,40 +71,6 @@ export async function POST(req: NextRequest) {
   return new NextResponse();
 }
 
-// async function handleMultiItems(event: Stripe.Event) {
-//   if (event.type !== "charge.succeeded") throw new Error("Invalid event type");
-//   const charge = event.data.object;
-//   const productIds = charge.metadata.productId.split(".");
-//   const email = charge.billing_details.email;
-//   const pricePaidInCents = charge.amount;
-
-//   const productsPromises = productIds.map(async (productId) => {
-//     return await db.product.findUnique({ where: { id: productId } });
-//   });
-
-//   const products = await Promise.all(productsPromises);
-
-//   if (!products || !email) {
-//     return new NextResponse("Bad Request", { status: 400 });
-//   }
-
-//   const orders = products.map(async (product) => {
-//     const userFields = {
-//       email,
-//       orders: { create: { productId, pricePaidInCents } },
-//     };
-//     const {
-//       orders: [order],
-//     } = await db.user.upsert({
-//       where: { email },
-//       create: userFields,
-//       update: userFields,
-//       select: { orders: { orderBy: { createdAt: "desc" }, take: 1 } },
-//     });
-//     return order;
-//   });
-// }
-
 async function handleMultiItems(event: Stripe.Event) {
   if (event.type !== "charge.succeeded") throw new Error("Invalid event type");
   const charge = event.data.object;
