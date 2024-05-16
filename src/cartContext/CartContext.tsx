@@ -50,7 +50,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const isInCart = (productId: string) => {
-    return cart.some((product) => product.id === productId);
+    return cart?.some((product) => product.id === productId);
   };
 
   const clearCart = () => {
