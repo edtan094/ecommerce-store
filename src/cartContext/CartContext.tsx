@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useState, useContext, useEffect } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from "react";
 
 const CartContext = createContext<{
   cart: CartContextType[];
@@ -24,48 +30,41 @@ type CartContextType = {
   imagePath: string;
 };
 
-export const CartProvider = ({ children }) => {
-  const cartExists =
-    sessionStorage.getItem("ecommerce-cart") &&
-    Array.isArray(
-      JSON.parse(sessionStorage.getItem("ecommerce-cart") as string)
-    );
-  const [cart, setCart] = useState<CartContextType[]>(
-    cartExists
-      ? JSON.parse(sessionStorage.getItem("ecommerce-cart") as string)
-      : []
-  );
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const [cart, setCart] = useState<CartContextType[]>([]);
 
   const addToCart = (product: CartContextType) => {
-    setCart((prevState) => [...prevState, product]);
+    setCart((prevState) => {
+      const state = [...prevState, product];
+      sessionStorage.setItem("ecommerce-cart", JSON.stringify(state));
+      return state;
+    });
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prevState) =>
-      prevState.filter((product) => product.id !== productId)
-    );
+    setCart((prevState) => {
+      const state = prevState.filter((product) => product.id !== productId);
+      sessionStorage.setItem("ecommerce-cart", JSON.stringify(state));
+      return state;
+    });
   };
 
   const isInCart = (productId: string) => {
-    return cart.some((product) => product.id === productId);
+    return cart?.some((product) => product.id === productId);
   };
 
   const clearCart = () => {
+    sessionStorage.setItem("ecommerce-cart", JSON.stringify([]));
     setCart([]);
   };
 
   useEffect(() => {
-    if (cartExists) {
-      const cartItems = JSON.parse(
-        sessionStorage.getItem("ecommerce-cart") as string
-      );
-      setCart(cartItems);
-    }
+    const cartItems = JSON.parse(
+      sessionStorage.getItem("ecommerce-cart") as string
+    );
+    console.log("cartItems", cartItems);
+    setCart(cartItems);
   }, []);
-
-  useEffect(() => {
-    sessionStorage.setItem("ecommerce-cart", JSON.stringify(cart));
-  }, [cart]);
 
   return (
     <CartContext.Provider
