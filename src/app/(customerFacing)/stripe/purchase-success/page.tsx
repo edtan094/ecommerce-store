@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import db from "@/db/db";
 import { formatCurrency } from "@/lib/formatters";
+import { Product } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Stripe from "stripe";
+import { Header } from "./_component/Header";
+import { revalidatePath } from "next/cache";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -17,16 +20,70 @@ export default async function SuccessPage({
     searchParams.payment_intent
   );
 
-  if (!paymentIntent.metadata.productId) return notFound();
+  if (!paymentIntent.metadata.productId && !paymentIntent.metadata.productIds) {
+    return notFound();
+  }
 
-  const product = await db.product.findUnique({
-    where: { id: paymentIntent.metadata.productId },
-  });
+  async function findSingleProduct() {
+    if (!paymentIntent.metadata.productId) return null;
+    const product = await db.product.findUnique({
+      where: { id: paymentIntent.metadata.productId },
+    });
+    return product;
+  }
 
-  if (!product) return notFound();
+  async function findProducts() {
+    if (!paymentIntent.metadata.productIds) return null;
+
+    const productIds = paymentIntent.metadata.productIds.split(".");
+
+    const products = await db.product.findMany({
+      where: { id: { in: productIds } },
+    });
+    return products;
+  }
+
+  const product = await findSingleProduct();
+  const products = await findProducts();
+
+  if (!product && !products) return notFound();
+
+  revalidatePath("/");
+  revalidatePath("/products");
 
   const isSuccess = paymentIntent.status === "succeeded";
+  if (product) {
+    return <SingleOrderSuccessPage isSuccess={isSuccess} product={product} />;
+  } else {
+    return (
+      <MultipleOrderSuccessPage
+        isSuccess={isSuccess}
+        products={products || []}
+      />
+    );
+  }
+}
 
+async function createDownloadVerification(productId: string) {
+  return (
+    await db.downloadVerification.create({
+      data: {
+        productId,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      },
+    })
+  ).id;
+}
+
+type SingleOrderSuccessPageProps = {
+  isSuccess: boolean;
+  product: Product;
+};
+
+async function SingleOrderSuccessPage({
+  isSuccess,
+  product,
+}: SingleOrderSuccessPageProps) {
   return (
     <div className="max-w-5xl w-full mx-auto space-y-8">
       <h1 className="text-4xl font-bold">
@@ -63,13 +120,51 @@ export default async function SuccessPage({
   );
 }
 
-async function createDownloadVerification(productId: string) {
+type MultipleOrderSuccessPageProps = {
+  isSuccess: boolean;
+  products: Product[];
+};
+
+async function MultipleOrderSuccessPage({
+  isSuccess,
+  products,
+}: MultipleOrderSuccessPageProps) {
   return (
-    await db.downloadVerification.create({
-      data: {
-        productId,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-      },
-    })
-  ).id;
+    <div className="max-w-5xl w-full mx-auto space-y-8">
+      <Header isSuccess={isSuccess} />
+      {products.map(async (product) => {
+        return (
+          <div key={product.id} className=" flex gap-4 items-center">
+            <div className="aspect-video flex-shrink-0 w-1/3 relative">
+              <Image src={product.imagePath} fill alt={product.name} />
+            </div>
+            <div>
+              <div className=" text-lg ">
+                {formatCurrency(product.priceInCents / 100)}
+              </div>
+              <h1 className="text-2xl font-bold">{product.name}</h1>
+              <div className="line-clamp-3 text-muted-foreground">
+                {product.description}
+              </div>
+              <Button className="mt-4" size="lg" asChild>
+                {isSuccess ? (
+                  <a
+                    href={`/products/download/${await createDownloadVerification(
+                      product.id
+                    )}`}
+                  >
+                    Download
+                  </a>
+                ) : (
+                  <Link href={`/products/${product.id}/purchase`}>
+                    Try Again
+                  </Link>
+                )}
+              </Button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }

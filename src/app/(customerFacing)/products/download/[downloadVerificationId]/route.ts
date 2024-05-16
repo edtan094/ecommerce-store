@@ -20,9 +20,9 @@ export async function GET(
     );
   }
 
-  const { size } = await fs.stat(data.product.imagePath);
-  const file = await fs.readFile(data.product.imagePath);
-  const extension = path.extname(data.product.imagePath);
+  const { size } = await fs.stat(`public${data.product.imagePath}`);
+  const file = await fs.readFile(`public${data.product.imagePath}`);
+  const extension = path.extname(`public${data.product.imagePath}`);
 
   return new NextResponse(file, {
     headers: {

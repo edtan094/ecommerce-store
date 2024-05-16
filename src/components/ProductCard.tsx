@@ -1,3 +1,5 @@
+"use client";
+
 import { formatCurrency } from "@/lib/formatters";
 import {
   Card,
@@ -10,6 +12,9 @@ import {
 import { Button } from "./ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { set } from "zod";
+import ShoppingButtons from "@/app/(customerFacing)/_components/ShoppingButtons";
 
 type ProductCardProps = {
   name: string;
@@ -38,10 +43,14 @@ export default function ProductCard({
       <CardContent className=" flex-grow">
         <p className=" line-clamp-4">{description}</p>
       </CardContent>
-      <CardFooter>
-        <Button asChild size="lg" className="w-full">
-          <Link href={`/products/${id}/purchase`}>Purchase</Link>
-        </Button>
+      <CardFooter className="flex justify-around">
+        <ShoppingButtons
+          id={id}
+          description={description}
+          name={name}
+          imagePath={imagePath}
+          priceInCents={priceInCents}
+        />
       </CardFooter>
     </Card>
   );

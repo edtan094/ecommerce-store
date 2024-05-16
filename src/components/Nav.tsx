@@ -5,14 +5,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ComponentProps } from "react";
 import ThemeToggle from "./ThemeToggle";
+import { ShoppingCartIcon } from "lucide-react";
 
 export default function Nav({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <nav className="bg-primary text-primary-foreground flex justify-center">
-      <ThemeToggle />
+    <nav className=" bg-primary-foreground text-secondary-foreground flex justify-around">
+      {/* <ThemeToggle /> */}
+      <div></div>
       <div className="flex justify-center px-4">{children}</div>
+      <div className=" flex items-center">
+        <Link href="/cart">
+          <ShoppingCartIcon />
+        </Link>
+      </div>
     </nav>
   );
 }
