@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useState, useContext, useEffect } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+} from "react";
 
 const CartContext = createContext<{
   cart: CartContextType[];
@@ -24,7 +30,7 @@ type CartContextType = {
   imagePath: string;
 };
 
-export const CartProvider = ({ children }) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
   const cartExists =
     sessionStorage.getItem("ecommerce-cart") &&
     Array.isArray(
