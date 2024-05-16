@@ -29,9 +29,6 @@ yarn-error.log*
 .env*.local
 .env
 
-# db
-/prisma/dev.db
-
 # vercel
 .vercel
 
