@@ -62,8 +62,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const cartItems = JSON.parse(
       sessionStorage.getItem("ecommerce-cart") as string
     );
-    console.log("cartItems", cartItems);
-    setCart(cartItems);
+    setCart(cartItems ?? []);
   }, []);
 
   return (
