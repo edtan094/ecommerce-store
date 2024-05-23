@@ -27,43 +27,11 @@ type ProductData = {
 };
 
 export default async function AdminDashboard() {
-  const results = await Promise.allSettled([
+  const [salesData, customerData, productData] = await Promise.all([
     getSalesData(),
     getCustomerData(),
     getProductData(),
   ]);
-
-  const [salesData, customerData, productData] = results.map(
-    (result, index) => {
-      if (result.status === "fulfilled") {
-        return result.value;
-      } else {
-        // Handle errors here
-        console.error("Error fetching data:", result.reason);
-        if (index === 0) {
-          return {
-            amount: 0,
-            numberOfSales: 0,
-            error: result.reason,
-          };
-        }
-        if (index === 1) {
-          return {
-            userCount: 0,
-            averageValuePerUser: 0,
-            error: result.reason,
-          };
-        }
-        if (index === 2) {
-          return {
-            activeCount: 0,
-            inactiveCount: 0,
-            error: result.reason,
-          };
-        }
-      }
-    }
-  ) as [SalesData, CustomerData, ProductData];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -71,7 +39,6 @@ export default async function AdminDashboard() {
         title="Sales"
         subTitle={`${formatNumber(salesData.numberOfSales)} Orders`}
         body={formatCurrency(salesData.amount)}
-        error={salesData.error}
       />
       <DashboardCard
         title="Customers"
@@ -79,13 +46,11 @@ export default async function AdminDashboard() {
           customerData.averageValuePerUser
         )} Average Value`}
         body={formatCurrency(customerData.userCount)}
-        error={customerData.error}
       />
       <DashboardCard
         title="Active Products"
         subTitle={`${formatNumber(productData.inactiveCount)} Inactive`}
         body={formatCurrency(productData.activeCount)}
-        error={productData.error}
       />
     </div>
   );
@@ -95,15 +60,14 @@ type DashboardCardProps = {
   title: string;
   subTitle: string;
   body: string;
-  error: string;
 };
 
-function DashboardCard({ title, subTitle, body, error }: DashboardCardProps) {
+function DashboardCard({ title, subTitle, body }: DashboardCardProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>{error ? error : subTitle}</CardDescription>
+        <CardDescription>{subTitle}</CardDescription>
       </CardHeader>
       <CardContent>
         <p>{body}</p>

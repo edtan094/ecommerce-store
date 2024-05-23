@@ -96,10 +96,14 @@ export default function MyCartPage() {
                 <p className="text-lg">Items in Cart: {cart?.length}</p>
                 <p className="text-lg">
                   Total:{" "}
-                  {formatCurrency(
-                    cart?.reduce((acc, item) => acc + item.priceInCents, 0) /
-                      100
-                  )}
+                  {cart
+                    ? formatCurrency(
+                        cart?.reduce(
+                          (acc, item) => acc + item.priceInCents,
+                          0
+                        ) / 100
+                      )
+                    : 0}
                 </p>
                 <Label htmlFor="email">Email Address</Label>
                 <Input
