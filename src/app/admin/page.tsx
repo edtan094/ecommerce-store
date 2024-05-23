@@ -8,24 +8,6 @@ import {
 import db from "@/db/db";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 
-type SalesData = {
-  amount: number;
-  numberOfSales: number;
-  error: string;
-};
-
-type CustomerData = {
-  userCount: number;
-  averageValuePerUser: number;
-  error: string;
-};
-
-type ProductData = {
-  activeCount: number;
-  inactiveCount: number;
-  error: string;
-};
-
 export default async function AdminDashboard() {
   const [salesData, customerData, productData] = await Promise.all([
     getSalesData(),
