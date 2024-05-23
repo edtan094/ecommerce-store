@@ -4,6 +4,8 @@ import { cache } from "@/lib/cache";
 import { Suspense } from "react";
 
 const getProducts = cache(() => {
+  const test = db.user.count();
+  console.log("test", test);
   return db.product.findMany({
     where: { isAvailableForPurchase: true },
     orderBy: { name: "asc" },
