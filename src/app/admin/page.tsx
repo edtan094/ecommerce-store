@@ -9,15 +9,17 @@ import db from "@/db/db";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 
 export default async function AdminDashboard() {
-  const [salesData, customerData, productData] = await Promise.all([
-    getSalesData(),
-    getCustomerData(),
-    getProductData(),
-  ]);
+  // const [salesData, customerData, productData] = await Promise.all([
+  //   getSalesData(),
+  //   getCustomerData(),
+  //   getProductData(),
+  // ]);
+
+  const [productData] = await Promise.all([getProductData()]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <DashboardCard
+      {/* <DashboardCard
         title="Sales"
         subTitle={`${formatNumber(salesData.numberOfSales)} Orders`}
         body={formatCurrency(salesData.amount)}
@@ -28,7 +30,7 @@ export default async function AdminDashboard() {
           customerData.averageValuePerUser
         )} Average Value`}
         body={formatCurrency(customerData.userCount)}
-      />
+      /> */}
       <DashboardCard
         title="Active Products"
         subTitle={`${formatNumber(productData.inactiveCount)} Inactive`}
@@ -58,33 +60,33 @@ function DashboardCard({ title, subTitle, body }: DashboardCardProps) {
   );
 }
 
-async function getSalesData() {
-  const data = await db.order.aggregate({
-    _sum: { pricePaidInCents: true },
-    _count: true,
-  });
-  return {
-    amount: (data._sum.pricePaidInCents || 0) / 100,
-    numberOfSales: data._count,
-  };
-}
+// async function getSalesData() {
+//   const data = await db.order.aggregate({
+//     _sum: { pricePaidInCents: true },
+//     _count: true,
+//   });
+//   return {
+//     amount: (data._sum.pricePaidInCents || 0) / 100,
+//     numberOfSales: data._count,
+//   };
+// }
 
-async function getCustomerData() {
-  const [userCount, orderData] = await Promise.all([
-    db.user.count(),
-    db.order.aggregate({
-      _sum: { pricePaidInCents: true },
-    }),
-  ]);
+// async function getCustomerData() {
+//   const [userCount, orderData] = await Promise.all([
+//     db.user.count(),
+//     db.order.aggregate({
+//       _sum: { pricePaidInCents: true },
+//     }),
+//   ]);
 
-  return {
-    userCount,
-    averageValuePerUser:
-      userCount === 0
-        ? 0
-        : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
-  };
-}
+//   return {
+//     userCount,
+//     averageValuePerUser:
+//       userCount === 0
+//         ? 0
+//         : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
+//   };
+// }
 
 async function getProductData() {
   const [activeCount, inactiveCount] = await Promise.all([
