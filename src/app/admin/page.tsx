@@ -38,12 +38,18 @@ async function getUserData() {
 }
 
 async function getProductData() {
-  const [activeCount, inactiveCount] = await Promise.all([
-    db.product.count({ where: { isAvailableForPurchase: true } }),
-    db.product.count({ where: { isAvailableForPurchase: false } }),
-  ]);
+  // const [activeCount, inactiveCount] = await Promise.all([
+  //   db.product.count({ where: { isAvailableForPurchase: true } }),
+  //   db.product.count({ where: { isAvailableForPurchase: false } }),
+  // ]);
 
-  return { activeCount, inactiveCount };
+  // return { activeCount, inactiveCount };
+
+  const product = await db.product.findMany({
+    where: { isAvailableForPurchase: true },
+    orderBy: { orders: { _count: "desc" } },
+  });
+  return product;
 }
 
 export default async function AdminDashboard() {
@@ -52,6 +58,8 @@ export default async function AdminDashboard() {
   //   getUserData(),
   //   getProductData(),
   // ]);
+
+  const productData = await getProductData();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -72,6 +80,15 @@ export default async function AdminDashboard() {
         subtitle={`${formatNumber(productData.inactiveCount)} Inactive`}
         body={formatNumber(productData.activeCount)}
       /> */}
+      <DashboardCard
+        title="Active Products"
+        subtitle={`Active`}
+        body={productData
+          .map((product) => {
+            return `${product.name} - ${product.priceInCents} - ${product.description} - ${product.createdAt}`;
+          })
+          .join(", ")}
+      />
     </div>
   );
 }
