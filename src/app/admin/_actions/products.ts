@@ -6,6 +6,7 @@ import fs from "fs/promises";
 import { notFound, redirect } from "next/navigation";
 import { File } from "buffer";
 import { revalidatePath } from "next/cache";
+import path from "path";
 
 const fileSchema = z.instanceof(File, { message: "Required" });
 
@@ -28,8 +29,10 @@ export async function addProduct(prevState: unknown, formData: FormData) {
 
   const data = result.data;
 
-  await fs.mkdir("public", { recursive: true });
-  await fs.mkdir("public/products", { recursive: true });
+  const publicDir = path.resolve(process.cwd(), "public");
+  const productsDir = path.join(publicDir, "products");
+
+  await fs.mkdir(productsDir, { recursive: true });
   const imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
   await fs.writeFile(
     `public${imagePath}`,
