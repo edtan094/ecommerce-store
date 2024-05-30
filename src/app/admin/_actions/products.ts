@@ -2,11 +2,10 @@
 
 import db from "@/db/db";
 import { z } from "zod";
-import fs from "fs/promises";
 import { notFound, redirect } from "next/navigation";
 import { File } from "buffer";
 import { revalidatePath } from "next/cache";
-import path from "path";
+import { put, del } from "@vercel/blob";
 
 const fileSchema = z.instanceof(File, { message: "Required" });
 
@@ -29,15 +28,9 @@ export async function addProduct(prevState: unknown, formData: FormData) {
 
   const data = result.data;
 
-  const publicDir = path.resolve(process.cwd(), "public");
-  const productsDir = path.join(publicDir, "products");
-
-  await fs.mkdir(productsDir, { recursive: true });
-  const imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
-  await fs.writeFile(
-    `public${imagePath}`,
-    Buffer.from(await data.image.arrayBuffer())
-  );
+  const blob = await put(data.image.name, await data.image.arrayBuffer(), {
+    access: "public",
+  });
 
   await db.product.create({
     data: {
@@ -45,7 +38,7 @@ export async function addProduct(prevState: unknown, formData: FormData) {
       name: data.name,
       description: data.description,
       priceInCents: data.priceInCents,
-      imagePath,
+      imagePath: blob.url,
     },
   });
 
@@ -73,16 +66,15 @@ export async function updateProduct(
   const data = result.data;
   const product = await db.product.findUnique({ where: { id } });
 
-  if (product === null) return notFound();
+  if (!product) return notFound();
 
   let imagePath = product.imagePath;
-  if (data.image != null && data.image.size > 0) {
-    await fs.unlink(`public${product.imagePath}`);
-    imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
-    await fs.writeFile(
-      `public${imagePath}`,
-      Buffer.from(await data.image.arrayBuffer())
-    );
+  if (data.image && data.image.size > 0) {
+    const blob = await put(data.image.name, await data.image.arrayBuffer(), {
+      access: "public",
+    });
+    imagePath = blob.url;
+    await del(product.imagePath);
   }
 
   await db.product.update({
@@ -117,7 +109,7 @@ export async function deleteProduct(id: string) {
   const product = await db.product.delete({ where: { id } });
   if (!product) return notFound();
 
-  await fs.unlink(`public/${product.imagePath}`);
+  await del(product.imagePath);
 
   revalidatePath("/");
   revalidatePath("/products");
