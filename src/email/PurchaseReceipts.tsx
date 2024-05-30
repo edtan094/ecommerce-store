@@ -7,7 +7,6 @@ import {
   Preview,
   Tailwind,
 } from "@react-email/components";
-import { OrderInformation } from "./components/OrderInformation";
 import crypto from "crypto";
 import { MultiOrderInformation } from "./components/MultiOrderInformation";
 
