@@ -99,6 +99,20 @@ function Form({ priceInCents }: { priceInCents: number }) {
               onChange={(e) => setEmail(e.value.email)}
             />
           </div>
+          <div className="mt-4">
+            <h3>
+              For test purposes, please use the following test card details:
+            </h3>
+            <p>
+              Card Number: <strong>4242 4242 4242 4242</strong>
+            </p>
+            <p>
+              Expiry Date: <strong>Any future date</strong>
+            </p>
+            <p>
+              CVC: <strong>Any 3 digits</strong>
+            </p>
+          </div>
         </CardContent>
         <CardFooter>
           <Button
