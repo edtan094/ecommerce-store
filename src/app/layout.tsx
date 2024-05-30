@@ -10,15 +10,11 @@ const fontSans = FontSans({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Meme Mart",
   description: "A simple ecommerce app built with Next.js, Stripe, and Prisma.",
-  icons: {
-    icon: "/favicon.ico",
-  },
   openGraph: {
     siteName: "Meme Mart",
     title: "Meme mart",
     description: "Welcome to Meme Mart! The best place to buy memes.",
     type: "website",
-    images: ["/market-icon.png"],
   },
 };
 
