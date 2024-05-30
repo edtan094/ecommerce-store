@@ -15,22 +15,7 @@ export const metadata: Metadata = {
     title: "Meme Mart",
     description: "Welcome to Meme Mart! The best place to buy memes.",
     type: "website",
-    images: [
-      {
-        url: "/favicon-16x16.png",
-        width: 16,
-        height: 16,
-        alt: "Meme Mart Logo",
-        type: "image/ico",
-      },
-      {
-        url: "/favicon-32x32.png",
-        width: 32,
-        height: 32,
-        alt: "Meme Mart Logo",
-        type: "image/ico",
-      },
-    ],
+    // images: ['/market-icon.png', ],
   },
 };
 
