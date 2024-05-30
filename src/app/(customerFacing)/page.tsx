@@ -33,12 +33,9 @@ export default async function HomePage() {
     <main className=" space-y-12">
       <ProductGridSection
         title="Most Popular"
-        productsFetchers={getNewestProducts}
-      />
-      <ProductGridSection
-        title="Newest"
         productsFetchers={getPopularProducts}
       />
+      <ProductGridSection title="Newest" productsFetchers={getNewestProducts} />
     </main>
   );
 }
