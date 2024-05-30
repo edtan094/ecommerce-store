@@ -12,10 +12,25 @@ export const metadata: Metadata = {
   description: "A simple ecommerce app built with Next.js, Stripe, and Prisma.",
   openGraph: {
     siteName: "Meme Mart",
-    title: "Meme mart",
+    title: "Meme Mart",
     description: "Welcome to Meme Mart! The best place to buy memes.",
     type: "website",
-    images: ["/market-icon.ico"],
+    images: [
+      {
+        url: "/favicon-16x16.png",
+        width: 16,
+        height: 16,
+        alt: "Meme Mart Logo",
+        type: "image/ico",
+      },
+      {
+        url: "/favicon-32x32.png",
+        width: 32,
+        height: 32,
+        alt: "Meme Mart Logo",
+        type: "image/ico",
+      },
+    ],
   },
 };
 
