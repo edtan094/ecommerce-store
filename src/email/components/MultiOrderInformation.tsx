@@ -57,7 +57,7 @@ export function MultiOrderInformation({
               <Img
                 width="100%"
                 alt={product.name}
-                src={`${process.env.NEXT_PUBLIC_SERVER_URL}${product.imagePath}`}
+                src={`${process.env.NEXT_PUBLIC_STRIPE_SERVER_URL}${product.imagePath}`}
               />
               <Row className="mt-8">
                 <Column className="align-bottom">
@@ -67,7 +67,7 @@ export function MultiOrderInformation({
                 </Column>
                 <Column align="right">
                   <Button
-                    href={`${process.env.NEXT_PUBLIC_SERVER_URL}/products/download/${product.downloadVerification.id}`}
+                    href={`${process.env.NEXT_PUBLIC_STRIPE_SERVER_URL}/products/download/${product.downloadVerification.id}`}
                     className="bg-black text-white px-6 py-4 rounded text-lg"
                   >
                     Download

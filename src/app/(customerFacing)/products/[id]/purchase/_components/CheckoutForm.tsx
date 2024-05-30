@@ -89,7 +89,7 @@ function Form({
       .confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/stripe/purchase-success`,
+          return_url: `${process.env.NEXT_PUBLIC_STRIPE_SERVER_URL}/stripe/purchase-success`,
         },
       })
       .then(({ error }) => {
