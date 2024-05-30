@@ -64,7 +64,7 @@ export default function MyCartPage() {
       </div>
       <div className="md:flex">
         <div className="md:w-2/3 px-4">
-          {cart.length > 0 ? (
+          {cart?.length > 0 ? (
             <div className="my-9">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
                 {cart.map((item) => {
@@ -93,12 +93,17 @@ export default function MyCartPage() {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg">Items in Cart: {cart.length}</p>
+                <p className="text-lg">Items in Cart: {cart?.length}</p>
                 <p className="text-lg">
                   Total:{" "}
-                  {formatCurrency(
-                    cart.reduce((acc, item) => acc + item.priceInCents, 0) / 100
-                  )}
+                  {cart
+                    ? formatCurrency(
+                        cart?.reduce(
+                          (acc, item) => acc + item.priceInCents,
+                          0
+                        ) / 100
+                      )
+                    : 0}
                 </p>
                 <Label htmlFor="email">Email Address</Label>
                 <Input

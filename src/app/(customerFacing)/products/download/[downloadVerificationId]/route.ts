@@ -1,6 +1,5 @@
 import db from "@/db/db";
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
 import path from "path";
 
 export async function GET(
@@ -20,14 +19,29 @@ export async function GET(
     );
   }
 
-  const { size } = await fs.stat(`public${data.product.imagePath}`);
-  const file = await fs.readFile(`public${data.product.imagePath}`);
-  const extension = path.extname(`public${data.product.imagePath}`);
+  const response = await fetch(data.product.imagePath);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image from ${data.product.imagePath}`);
+  }
 
-  return new NextResponse(file, {
-    headers: {
-      "Content-Disposition": `attachment; filename="${data.product.name}.${extension}"`,
-      "Content-Length": size.toString(),
-    },
+  const extension = path.extname(data.product.imagePath);
+  const filename = `${data.product.name}${extension}`;
+  const contentType = response.headers.get("Content-Type");
+  const contentLength = response.headers.get("Content-Length");
+
+  const headers: Record<string, string> = {
+    "Content-Disposition": `attachment; filename="${filename}"`,
+  };
+
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+
+  if (contentLength) {
+    headers["Content-Length"] = contentLength;
+  }
+
+  return new NextResponse(response.body, {
+    headers,
   });
 }

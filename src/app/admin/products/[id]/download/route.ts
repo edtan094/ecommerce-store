@@ -1,7 +1,6 @@
 import db from "@/db/db";
 import { notFound } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs/promises";
 import path from "path";
 
 export async function GET(
@@ -13,16 +12,31 @@ export async function GET(
     select: { imagePath: true, name: true },
   });
 
-  if (product == null) return notFound();
+  if (!product) return notFound();
 
-  const { size } = await fs.stat(product.imagePath);
-  const file = await fs.readFile(product.imagePath);
+  const response = await fetch(product.imagePath);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image from ${product.imagePath}`);
+  }
+
   const extension = path.extname(product.imagePath);
+  const filename = `${product.name}${extension}`;
+  const contentType = response.headers.get("Content-Type");
+  const contentLength = response.headers.get("Content-Length");
 
-  return new NextResponse(file, {
-    headers: {
-      "Content-Disposition": `attachment; filename="${product.name}.${extension}"`,
-      "Content-Length": size.toString(),
-    },
+  const headers: Record<string, string> = {
+    "Content-Disposition": `attachment; filename="${filename}"`,
+  };
+
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+
+  if (contentLength) {
+    headers["Content-Length"] = contentLength;
+  }
+
+  return new NextResponse(response.body, {
+    headers,
   });
 }

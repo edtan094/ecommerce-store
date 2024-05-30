@@ -31,6 +31,7 @@ export default function ProductCard({
   id,
   imagePath,
 }: ProductCardProps) {
+  console.log("imagePath", imagePath);
   return (
     <Card className="flex overflow-hidden flex-col">
       <div className=" relative w-full h-auto aspect-video">
