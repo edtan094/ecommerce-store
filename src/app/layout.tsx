@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     title: "Meme Mart",
     description: "Welcome to Meme Mart! The best place to buy memes.",
     type: "website",
-    // images: ['/market-icon.png', ],
+    images: ["/market-icon.png"],
   },
 };
 
