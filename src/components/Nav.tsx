@@ -22,7 +22,7 @@ export default function Nav({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <nav className=" bg-primary-foreground text-secondary-foreground flex justify-around px-5 sm:px-0">
+    <nav className=" bg-primary-foreground text-secondary-foreground flex justify-around px-8 sm:px-0">
       {/* <ThemeToggle /> */}
       <MemeMartLogo />
       <div className="flex justify-center px-4">{children}</div>
