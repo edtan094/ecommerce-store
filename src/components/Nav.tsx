@@ -54,7 +54,7 @@ export function MemeMartLogo() {
     <div className="flex items-center">
       <Button
         variant="ghost"
-        className="flex items-center"
+        className="flex items-center hover:bg-primary-foreground"
         onClick={() => router.push("/")}
       >
         <span className={`${fredoka.className} font-bold sm:block hidden`}>
